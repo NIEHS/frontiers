@@ -1,16 +1,16 @@
 %%
-%% This is file `te.bst',
+%% This is file `Frontiers-Vancouver.bst',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% merlin.mbs  (with options: `ay,nat,annote,nm-revv1,jnrlst,keyxyr,dt-beg,yr-par,note-yr,tit-qq,vnum-x,volp-com,num-xser,bkpg-x,edby-par,edbyy,blk-tit,blknt,ppx,ed,xedn,url,url-blk,nfss')
-%%
-%% AND then the placement of 'edition' was manually changed (to put
-%% it after the book title, not after the publisher).  [MJO 2007-5-19]
-%%
+%% merlin.mbs  (with options: `head,ay,nat,lang,seq-no,nm-rvx,ed-rev,jnrlst,nmlm,x6,m6,keyxyr,yr-par,note-yr,vol-bf,vnum-x,volp-blk,pp-last,num-xser,ser-vol,jnm-x,pg-bk,add-pub,pub-par,pre-pub,doi,in-x,ppx,abr,xedn,jabr,and-com,and-com-ed,xand,plntx,,{}')
+%% physjour.mbs  (with options: `ay,nat,lang,seq-no,nm-rvx,ed-rev,jnrlst,nmlm,x6,m6,keyxyr,yr-par,note-yr,vol-bf,vnum-x,volp-blk,pp-last,num-xser,ser-vol,jnm-x,pg-bk,add-pub,pub-par,pre-pub,doi,in-x,ppx,abr,xedn,jabr,and-com,and-com-ed,xand,plntx,,{}')
+%% merlin.mbs  (with options: `tail,ay,nat,lang,seq-no,nm-rvx,ed-rev,jnrlst,nmlm,x6,m6,keyxyr,yr-par,note-yr,vol-bf,vnum-x,volp-blk,pp-last,num-xser,ser-vol,jnm-x,pg-bk,add-pub,pub-par,pre-pub,doi,in-x,ppx,abr,xedn,jabr,and-com,and-com-ed,xand,plntx,,{}')
 %% ----------------------------------------
-%% *** BibTeX style file for Theoretical Economics ***
+%% ***  For articles in journals using the Vancouver Reference Style (Numbered), for Frontiers Reference Styles by Journal: https://zendesk.frontiersin.org/hc/en-us/articles/360017860337-Frontiers-Reference-Styles-by-Journal  ***
+%%
+%% Copyright 1994-2011 Patrick W Daly
  % ===============================================================
  % IMPORTANT NOTICE:
  % This bibliographic style (bst) file has been generated from one or
@@ -22,7 +22,7 @@
  % version 1 of the License, or any later version.
  % ===============================================================
  % Name and version information of the main mbs file:
- % \ProvidesFile{merlin.mbs}[2005/10/17 4.14 (PWD, AO, DPC)]
+ % \ProvidesFile{merlin.mbs}[2011/11/18 4.33 (PWD, AO, DPC)]
  %   For use with BibTeX version 0.99a or later
  %-------------------------------------------------------------------
  % This bibliography style file is intended for texts in ENGLISH
@@ -47,7 +47,7 @@
  %   \citep*{key} ==>>               (Jones, Baker, and Smith, 1990)
  %   \citep[chap. 2]{key} ==>>       (Jones et al., 1990, chap. 2)
  %   \citep[e.g.][]{key} ==>>        (e.g. Jones et al., 1990)
- %   \citep[e.g.][p. 32]{key} ==>>   (e.g. Jones et al., p. 32)
+ %   \citep[e.g.][p. 32]{key} ==>>   (e.g. Jones et al., 1990, p. 32)
  %   \citeauthor{key} ==>>           Jones et al.
  %   \citeauthor*{key} ==>>          Jones, Baker, and Smith
  %   \citeyear{key} ==>>             1990
@@ -55,10 +55,10 @@
 
 ENTRY
   { address
-    annote
     author
     booktitle
     chapter
+    doi
     edition
     editor
     eid
@@ -66,6 +66,7 @@ ENTRY
     institution
     journal
     key
+    language
     month
     note
     number
@@ -76,7 +77,6 @@ ENTRY
     series
     title
     type
-    url
     volume
     year
   }
@@ -127,11 +127,6 @@ FUNCTION {fin.entry}
 { add.period$
   write$
   newline$
-  annote missing$
-    { "\bibAnnoteFile{" cite$ * "}" * write$ newline$ }
-    { "\bibAnnote{" cite$ * "}{" * annote * "}" * write$ newline$
-    }
-  if$
 }
 
 FUNCTION {new.block}
@@ -156,7 +151,7 @@ FUNCTION {add.blank}
 
 FUNCTION {date.block}
 {
-  skip$
+  new.block
 }
 
 FUNCTION {not}
@@ -174,12 +169,26 @@ FUNCTION {or}
     'skip$
   if$
 }
-FUNCTION {non.stop}
-{ duplicate$
-   "}" * add.period$
-   #-1 #1 substring$ "." =
-}
+STRINGS {z}
 
+FUNCTION {remove.dots}
+{ 'z :=
+   ""
+   { z empty$ not }
+   { z #1 #2 substring$
+     duplicate$ "\." =
+       { z #3 global.max$ substring$ 'z :=  * }
+       { pop$
+         z #1 #1 substring$
+         z #2 global.max$ substring$ 'z :=
+         duplicate$ "." = 'pop$
+           { * }
+         if$
+       }
+     if$
+   }
+   while$
+}
 FUNCTION {new.block.checkb}
 { empty$
   swap$ empty$
@@ -197,7 +206,13 @@ FUNCTION {field.or.null}
 FUNCTION {emphasize}
 { duplicate$ empty$
     { pop$ "" }
-    { "\emph{" swap$ * "}" * }
+    { "{\em " swap$ * "\/}" * }
+  if$
+}
+FUNCTION {bolden}
+{ duplicate$ empty$
+    { pop$ "" }
+    { "{\bf " swap$ * "}" * }
   if$
 }
 FUNCTION {tie.or.space.prefix}
@@ -223,25 +238,25 @@ FUNCTION {bbl.etal}
 { "et~al." }
 
 FUNCTION {bbl.editors}
-{ "eds." }
+{ "editors" }
 
 FUNCTION {bbl.editor}
-{ "ed." }
+{ "editor" }
 
 FUNCTION {bbl.edby}
 { "edited by" }
 
 FUNCTION {bbl.edition}
-{ "edition" }
+{ "edn." }
 
 FUNCTION {bbl.volume}
-{ "volume" }
+{ "vol." }
 
 FUNCTION {bbl.of}
 { "of" }
 
 FUNCTION {bbl.number}
-{ "number" }
+{ "no." }
 
 FUNCTION {bbl.nr}
 { "no." }
@@ -256,10 +271,10 @@ FUNCTION {bbl.page}
 { "" }
 
 FUNCTION {bbl.chapter}
-{ "chapter" }
+{ "chap." }
 
 FUNCTION {bbl.techrep}
-{ "Technical Report" }
+{ "Tech. Rep." }
 
 FUNCTION {bbl.mthesis}
 { "Master's thesis" }
@@ -267,70 +282,169 @@ FUNCTION {bbl.mthesis}
 FUNCTION {bbl.phdthesis}
 { "Ph.D. thesis" }
 
-MACRO {jan} {"January"}
+MACRO {jan} {"Jan."}
 
-MACRO {feb} {"February"}
+MACRO {feb} {"Feb."}
 
-MACRO {mar} {"March"}
+MACRO {mar} {"Mar."}
 
-MACRO {apr} {"April"}
+MACRO {apr} {"Apr."}
 
 MACRO {may} {"May"}
 
-MACRO {jun} {"June"}
+MACRO {jun} {"Jun."}
 
-MACRO {jul} {"July"}
+MACRO {jul} {"Jul."}
 
-MACRO {aug} {"August"}
+MACRO {aug} {"Aug."}
 
-MACRO {sep} {"September"}
+MACRO {sep} {"Sep."}
 
-MACRO {oct} {"October"}
+MACRO {oct} {"Oct."}
 
-MACRO {nov} {"November"}
+MACRO {nov} {"Nov."}
 
-MACRO {dec} {"December"}
+MACRO {dec} {"Dec."}
 
-MACRO {acmcs} {"ACM Computing Surveys"}
+ %-------------------------------------------------------------------
+ % Begin module:
+ % \ProvidesFile{physjour.mbs}[2002/01/14 2.2 (PWD)]
+MACRO {aa}{"Astron. \& Astrophys."}
+MACRO {aasup}{"Astron. \& Astrophys. Suppl. Ser."}
+MACRO {aj} {"Astron. J."}
+MACRO {aph} {"Acta Phys."}
+MACRO {advp} {"Adv. Phys."}
+MACRO {ajp} {"Amer. J. Phys."}
+MACRO {ajm} {"Amer. J. Math."}
+MACRO {amsci} {"Amer. Sci."}
+MACRO {anofd} {"Ann. Fluid Dyn."}
+MACRO {am} {"Ann. Math."}
+MACRO {ap} {"Ann. Phys. (NY)"}
+MACRO {adp} {"Ann. Phys. (Leipzig)"}
+MACRO {ao} {"Appl. Opt."}
+MACRO {apl} {"Appl. Phys. Lett."}
+MACRO {app} {"Astroparticle Phys."}
+MACRO {apj} {"Astrophys. J."}
+MACRO {apjsup} {"Astrophys. J. Suppl."}
+MACRO {apss} {"Astrophys. Space Sci."}
+MACRO {araa} {"Ann. Rev. Astron. Astrophys."}
+MACRO {baas} {"Bull. Amer. Astron. Soc."}
+MACRO {baps} {"Bull. Amer. Phys. Soc."}
+MACRO {cmp} {"Comm. Math. Phys."}
+MACRO {cpam} {"Commun. Pure Appl. Math."}
+MACRO {cppcf} {"Comm. Plasma Phys. \& Controlled Fusion"}
+MACRO {cpc} {"Comp. Phys. Comm."}
+MACRO {cqg} {"Class. Quant. Grav."}
+MACRO {cra} {"C. R. Acad. Sci. A"}
+MACRO {fed} {"Fusion Eng. \& Design"}
+MACRO {ft} {"Fusion Tech."}
+MACRO {grg} {"Gen. Relativ. Gravit."}
+MACRO {ieeens} {"IEEE Trans. Nucl. Sci."}
+MACRO {ieeeps} {"IEEE Trans. Plasma Sci."}
+MACRO {ijimw} {"Interntl. J. Infrared \& Millimeter Waves"}
+MACRO {ip} {"Infrared Phys."}
+MACRO {irp} {"Infrared Phys."}
+MACRO {jap} {"J. Appl. Phys."}
+MACRO {jasa} {"J. Acoust. Soc. America"}
+MACRO {jcp} {"J. Comp. Phys."}
+MACRO {jetp} {"Sov. Phys.--JETP"}
+MACRO {jfe} {"J. Fusion Energy"}
+MACRO {jfm} {"J. Fluid Mech."}
+MACRO {jmp} {"J. Math. Phys."}
+MACRO {jne} {"J. Nucl. Energy"}
+MACRO {jnec} {"J. Nucl. Energy, C: Plasma Phys., Accelerators, Thermonucl. Res."}
+MACRO {jnm} {"J. Nucl. Mat."}
+MACRO {jpc} {"J. Phys. Chem."}
+MACRO {jpp} {"J. Plasma Phys."}
+MACRO {jpsj} {"J. Phys. Soc. Japan"}
+MACRO {jsi} {"J. Sci. Instrum."}
+MACRO {jvst} {"J. Vac. Sci. \& Tech."}
+MACRO {nat} {"Nature"}
+MACRO {nature} {"Nature"}
+MACRO {nedf} {"Nucl. Eng. \& Design/Fusion"}
+MACRO {nf} {"Nucl. Fusion"}
+MACRO {nim} {"Nucl. Inst. \& Meth."}
+MACRO {nimpr} {"Nucl. Inst. \& Meth. in Phys. Res."}
+MACRO {np} {"Nucl. Phys."}
+MACRO {npb} {"Nucl. Phys. B"}
+MACRO {nt/f} {"Nucl. Tech./Fusion"}
+MACRO {npbpc} {"Nucl. Phys. B (Proc. Suppl.)"}
+MACRO {inc} {"Nuovo Cimento"}
+MACRO {nc} {"Nuovo Cimento"}
+MACRO {pf} {"Phys. Fluids"}
+MACRO {pfa} {"Phys. Fluids A: Fluid Dyn."}
+MACRO {pfb} {"Phys. Fluids B: Plasma Phys."}
+MACRO {pl} {"Phys. Lett."}
+MACRO {pla} {"Phys. Lett. A"}
+MACRO {plb} {"Phys. Lett. B"}
+MACRO {prep} {"Phys. Rep."}
+MACRO {pnas} {"Proc. Nat. Acad. Sci. USA"}
+MACRO {pp} {"Phys. Plasmas"}
+MACRO {ppcf} {"Plasma Phys. \& Controlled Fusion"}
+MACRO {phitrsl} {"Philos. Trans. Roy. Soc. London"}
+MACRO {prl} {"Phys. Rev. Lett."}
+MACRO {pr} {"Phys. Rev."}
+MACRO {physrev} {"Phys. Rev."}
+MACRO {pra} {"Phys. Rev. A"}
+MACRO {prb} {"Phys. Rev. B"}
+MACRO {prc} {"Phys. Rev. C"}
+MACRO {prd} {"Phys. Rev. D"}
+MACRO {pre} {"Phys. Rev. E"}
+MACRO {ps} {"Phys. Scripta"}
+MACRO {procrsl} {"Proc. Roy. Soc. London"}
+MACRO {rmp} {"Rev. Mod. Phys."}
+MACRO {rsi} {"Rev. Sci. Inst."}
+MACRO {science} {"Science"}
+MACRO {sciam} {"Sci. Am."}
+MACRO {sam} {"Stud. Appl. Math."}
+MACRO {sjpp} {"Sov. J. Plasma Phys."}
+MACRO {spd} {"Sov. Phys.--Doklady"}
+MACRO {sptp} {"Sov. Phys.--Tech. Phys."}
+MACRO {spu} {"Sov. Phys.--Uspeki"}
+MACRO {st} {"Sky and Telesc."}
+ % End module: physjour.mbs
+%% Copyright 1994-2011 Patrick W Daly
+MACRO {acmcs} {"ACM Comput. Surv."}
 
-MACRO {acta} {"Acta Informatica"}
+MACRO {acta} {"Acta Inf."}
 
-MACRO {cacm} {"Communications of the ACM"}
+MACRO {cacm} {"Commun. ACM"}
 
-MACRO {ibmjrd} {"IBM Journal of Research and Development"}
+MACRO {ibmjrd} {"IBM J. Res. Dev."}
 
-MACRO {ibmsj} {"IBM Systems Journal"}
+MACRO {ibmsj} {"IBM Syst.~J."}
 
-MACRO {ieeese} {"IEEE Transactions on Software Engineering"}
+MACRO {ieeese} {"IEEE Trans. Software Eng."}
 
-MACRO {ieeetc} {"IEEE Transactions on Computers"}
+MACRO {ieeetc} {"IEEE Trans. Comput."}
 
 MACRO {ieeetcad}
- {"IEEE Transactions on Computer-Aided Design of Integrated Circuits"}
+ {"IEEE Trans. Comput. Aid. Des."}
 
-MACRO {ipl} {"Information Processing Letters"}
+MACRO {ipl} {"Inf. Process. Lett."}
 
-MACRO {jacm} {"Journal of the ACM"}
+MACRO {jacm} {"J.~ACM"}
 
-MACRO {jcss} {"Journal of Computer and System Sciences"}
+MACRO {jcss} {"J.~Comput. Syst. Sci."}
 
-MACRO {scp} {"Science of Computer Programming"}
+MACRO {scp} {"Sci. Comput. Program."}
 
-MACRO {sicomp} {"SIAM Journal on Computing"}
+MACRO {sicomp} {"SIAM J. Comput."}
 
-MACRO {tocs} {"ACM Transactions on Computer Systems"}
+MACRO {tocs} {"ACM Trans. Comput. Syst."}
 
-MACRO {tods} {"ACM Transactions on Database Systems"}
+MACRO {tods} {"ACM Trans. Database Syst."}
 
-MACRO {tog} {"ACM Transactions on Graphics"}
+MACRO {tog} {"ACM Trans. Graphic."}
 
-MACRO {toms} {"ACM Transactions on Mathematical Software"}
+MACRO {toms} {"ACM Trans. Math. Software"}
 
-MACRO {toois} {"ACM Transactions on Office Information Systems"}
+MACRO {toois} {"ACM Trans. Office Inf. Syst."}
 
-MACRO {toplas} {"ACM Transactions on Programming Languages and Systems"}
+MACRO {toplas} {"ACM Trans. Progr. Lang. Syst."}
 
-MACRO {tcs} {"Theoretical Computer Science"}
+MACRO {tcs} {"Theor. Comput. Sci."}
+
 FUNCTION {bibinfo.check}
 { swap$
   duplicate$ missing$
@@ -367,15 +481,10 @@ FUNCTION {bibinfo.warn}
     }
   if$
 }
-FUNCTION {format.url}
-{ url empty$
-    { "" }
-    { "\urlprefix\url{" url * "}" * }
-  if$
-}
+INTEGERS { nameptr namesleft numnames }
+
 
 STRINGS  { bibinfo}
-INTEGERS { nameptr namesleft numnames }
 
 FUNCTION {format.names}
 { 'bibinfo :=
@@ -387,15 +496,21 @@ FUNCTION {format.names}
   numnames 'namesleft :=
     { namesleft #0 > }
     { s nameptr
-      duplicate$ #1 >
-        { "{ff~}{vv~}{ll}{, jj}" }
-        { "{vv~}{ll}{, ff}{, jj}" }
-      if$
+      "{vv~}{ll}{ f{}}{ jj}"
       format.name$
+      remove.dots
       bibinfo bibinfo.check
       't :=
       nameptr #1 >
         {
+          nameptr #6
+          #1 + =
+          numnames #6
+          > and
+            { "others" 't :=
+              #1 'namesleft := }
+            'skip$
+          if$
           namesleft #1 >
             { ", " * t * }
             {
@@ -403,18 +518,12 @@ FUNCTION {format.names}
                 { 't := }
                 { pop$ }
               if$
-              numnames #2 >
-                { "," * }
-                'skip$
-              if$
+              "," *
               t "others" =
                 {
                   " " * bbl.etal *
                 }
-                {
-                  bbl.and
-                  space.word * t *
-                }
+                { " " * t * }
               if$
             }
           if$
@@ -429,52 +538,7 @@ FUNCTION {format.names}
 }
 FUNCTION {format.names.ed}
 {
-  'bibinfo :=
-  duplicate$ empty$ 'skip$ {
-  's :=
-  "" 't :=
-  #1 'nameptr :=
-  s num.names$ 'numnames :=
-  numnames 'namesleft :=
-    { namesleft #0 > }
-    { s nameptr
-      "{ff~}{vv~}{ll}{, jj}"
-      format.name$
-      bibinfo bibinfo.check
-      't :=
-      nameptr #1 >
-        {
-          namesleft #1 >
-            { ", " * t * }
-            {
-              s nameptr "{ll}" format.name$ duplicate$ "others" =
-                { 't := }
-                { pop$ }
-              if$
-              numnames #2 >
-                { "," * }
-                'skip$
-              if$
-              t "others" =
-                {
-
-                  " " * bbl.etal *
-                }
-                {
-                  bbl.and
-                  space.word * t *
-                }
-              if$
-            }
-          if$
-        }
-        't
-      if$
-      nameptr #1 + 'nameptr :=
-      namesleft #1 - 'namesleft :=
-    }
-  while$
-  } if$
+  format.names
 }
 FUNCTION {format.key}
 { empty$
@@ -499,6 +563,32 @@ FUNCTION {format.editors}
     }
   if$
 }
+FUNCTION {format.book.pages}
+{ pages "pages" bibinfo.check
+  duplicate$ empty$ 'skip$
+    { " " * bbl.pages * }
+  if$
+}
+FUNCTION {format.doi}
+{ doi empty$
+    { "" }
+    {
+      new.block
+      "\doi{" doi * "}" *
+    }
+  if$
+}
+FUNCTION {select.language}
+{ duplicate$ empty$
+    'pop$
+    { language empty$
+        'skip$
+        { "{\selectlanguage{" language * "}" * swap$ * "}" * }
+      if$
+    }
+    if$
+}
+
 FUNCTION {format.note}
 {
  note empty$
@@ -526,8 +616,7 @@ FUNCTION {format.title}
   "title" bibinfo.check
   duplicate$ empty$ 'skip$
     {
-      "\enquote{" swap$ *
-      add.period$ "}" *
+      select.language
     }
   if$
 }
@@ -543,6 +632,14 @@ FUNCTION {format.full.names}
       't :=
       nameptr #1 >
         {
+          nameptr #6
+          #1 + =
+          numnames #6
+          > and
+            { "others" 't :=
+              #1 'namesleft := }
+            'skip$
+          if$
           namesleft #1 >
             { ", " * t * }
             {
@@ -667,8 +764,7 @@ FUNCTION {n.dashify}
 }
 
 FUNCTION {word.in}
-{ bbl.in capitalize
-  " " * }
+{ "" }
 
 FUNCTION {format.date}
 { year "year" bibinfo.check duplicate$ empty$
@@ -687,6 +783,7 @@ FUNCTION {format.btitle}
   duplicate$ empty$ 'skip$
     {
       emphasize
+      select.language
     }
   if$
 }
@@ -703,8 +800,7 @@ FUNCTION {format.bvolume}
       "volume" bibinfo.check * *
       series "series" bibinfo.check
       duplicate$ empty$ 'pop$
-        { swap$ bbl.of space.word * swap$
-          emphasize * }
+        { emphasize ", " * swap$ * }
       if$
       "volume and number" number either.or.check
     }
@@ -782,7 +878,7 @@ FUNCTION {format.journal.pages}
     { swap$ duplicate$ empty$
         { pop$ pop$ format.pages }
         {
-          ", " *
+          " " *
           swap$
           n.dashify
           "pages" bibinfo.check
@@ -797,7 +893,7 @@ FUNCTION {format.journal.eid}
   duplicate$ empty$ 'pop$
     { swap$ duplicate$ empty$ 'skip$
       {
-          ", " *
+          " " *
       }
       if$
       swap$ *
@@ -811,15 +907,12 @@ FUNCTION {format.vol.num.pages}
       "volume" bibinfo.check
     }
   if$
-  eid empty$
-    { format.journal.pages }
-    { format.journal.eid }
-  if$
+  bolden
 }
 
 FUNCTION {format.chapter.pages}
 { chapter empty$
-    'format.pages
+    { "" }
     { type empty$
         { bbl.chapter }
         { type "l" change.case$
@@ -829,10 +922,6 @@ FUNCTION {format.chapter.pages}
       chapter tie.or.space.prefix
       "chapter" bibinfo.check
       * *
-      pages empty$
-        'skip$
-        { ", " * format.pages * }
-      if$
     }
   if$
 }
@@ -847,12 +936,11 @@ FUNCTION {format.in.ed.booktitle}
     {
       editor "editor" format.names.ed duplicate$ empty$ 'pop$
         {
+          "," *
+          " " *
           get.bbl.editor
-          swap$ "," *
-          " " * swap$ *
-          "(" swap$ * ")" *
-          swap$
-          " " * swap$
+          ", " *
+          * swap$
           * }
       if$
       word.in swap$ *
@@ -907,16 +995,18 @@ FUNCTION {format.org.or.pub}
   address empty$ t empty$ and
     'skip$
     {
+      add.blank "(" *
+      address "address" bibinfo.check *
       t empty$
-        { address "address" bibinfo.check *
-        }
-        { t *
-          address empty$
+        'skip$
+        { address empty$
             'skip$
-            { ", " * address "address" bibinfo.check * }
+            { ": " * }
           if$
+          t *
         }
       if$
+      ")" *
     }
   if$
 }
@@ -932,24 +1022,28 @@ FUNCTION {article}
 { output.bibitem
   format.authors "author" output.check
   author format.key output
-  format.date "year" output.check
-  date.block
+  new.block
   format.title "title" output.check
-  new.sentence
+  new.block
   crossref missing$
     {
       journal
       "journal" bibinfo.check
       emphasize
       "journal" output.check
+      add.blank
       format.vol.num.pages output
+      format.date "year" output.check
     }
     { format.article.crossref output.nonnull
-      format.pages output
     }
   if$
-  format.url output
-  new.sentence
+  eid empty$
+    { format.journal.pages }
+    { format.journal.eid }
+  if$
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
@@ -966,23 +1060,25 @@ FUNCTION {book}
       if$
     }
   if$
-  format.date "year" output.check
-  date.block
+  new.block
   format.btitle "title" output.check
-  format.edition output
   crossref missing$
     { format.bvolume output
-  new.sentence
+      new.block
       format.number.series output
+      new.sentence
       format.publisher.address output
     }
     {
-  new.sentence
+      new.block
       format.book.crossref output.nonnull
     }
   if$
-  format.url output
-  new.sentence
+  format.edition output
+  format.date "year" output.check
+  format.book.pages output
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
@@ -990,14 +1086,15 @@ FUNCTION {booklet}
 { output.bibitem
   format.authors output
   author format.key output
-  format.date "year" output.check
-  date.block
+  new.block
   format.title "title" output.check
-  new.sentence
+  new.block
   howpublished "howpublished" bibinfo.check output
   address "address" bibinfo.check output
-  format.url output
-  new.sentence
+  format.date "year" output.check
+  format.book.pages output
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
@@ -1015,26 +1112,28 @@ FUNCTION {inbook}
       if$
     }
   if$
-  format.date "year" output.check
-  date.block
+  new.block
   format.btitle "title" output.check
-  format.edition output
   crossref missing$
     {
+      format.publisher.address output
       format.bvolume output
       format.chapter.pages "chapter and pages" output.check
-  new.sentence
+      new.block
       format.number.series output
-      format.publisher.address output
+      new.sentence
     }
     {
       format.chapter.pages "chapter and pages" output.check
-  new.sentence
+      new.block
       format.book.crossref output.nonnull
     }
   if$
-  format.url output
-  new.sentence
+  format.edition output
+  format.date "year" output.check
+  format.pages "pages" output.check
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
@@ -1043,24 +1142,26 @@ FUNCTION {incollection}
 { output.bibitem
   format.authors "author" output.check
   author format.key output
-  format.date "year" output.check
-  date.block
+  new.block
   format.title "title" output.check
-  new.sentence
+  new.block
   crossref missing$
     { format.in.ed.booktitle "booktitle" output.check
+      format.publisher.address output
       format.bvolume output
       format.number.series output
-      format.edition output
       format.chapter.pages output
-      format.publisher.address output
+      new.sentence
+      format.edition output
+      format.date "year" output.check
     }
     { format.incoll.inproc.crossref output.nonnull
       format.chapter.pages output
     }
   if$
-  format.url output
-  new.sentence
+  format.pages "pages" output.check
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
@@ -1068,28 +1169,28 @@ FUNCTION {inproceedings}
 { output.bibitem
   format.authors "author" output.check
   author format.key output
-  format.date "year" output.check
-  date.block
+  new.block
   format.title "title" output.check
-  new.sentence
+  new.block
   crossref missing$
     { format.in.ed.booktitle "booktitle" output.check
-      format.bvolume output
-      format.number.series output
-      format.pages output
+      new.sentence
       publisher empty$
         { format.organization.address output }
         { organization "organization" bibinfo.check output
           format.publisher.address output
         }
       if$
+      format.date "year" output.check
+      format.bvolume output
+      format.number.series output
     }
     { format.incoll.inproc.crossref output.nonnull
-      format.pages output
     }
   if$
-  format.url output
-  new.sentence
+  format.pages "pages" output.check
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
@@ -1098,15 +1199,15 @@ FUNCTION {manual}
 { output.bibitem
   format.authors output
   author format.key output
-  format.date "year" output.check
-  date.block
+  new.block
   format.btitle "title" output.check
-  format.edition output
-  new.sentence
+  organization address new.block.checkb
   organization "organization" bibinfo.check output
   address "address" bibinfo.check output
-  format.url output
-  new.sentence
+  format.edition output
+  format.date "year" output.check
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
@@ -1115,31 +1216,32 @@ FUNCTION {mastersthesis}
 { output.bibitem
   format.authors "author" output.check
   author format.key output
-  format.date "year" output.check
-  date.block
+  new.block
   format.btitle
   "title" output.check
-  new.sentence
+  new.block
   bbl.mthesis format.thesis.type output.nonnull
   school "school" bibinfo.warn output
   address "address" bibinfo.check output
-  format.url output
-  new.sentence
+  format.date "year" output.check
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
 
 FUNCTION {misc}
 { output.bibitem
+  "[Dataset] " write$
   format.authors output
   author format.key output
-  format.date "year" output.check
-  date.block
+  new.block
   format.title output
-  new.sentence
+  new.block
   howpublished "howpublished" bibinfo.check output
-  format.url output
-  new.sentence
+  format.date "year" output.check
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
@@ -1147,16 +1249,16 @@ FUNCTION {phdthesis}
 { output.bibitem
   format.authors "author" output.check
   author format.key output
-  format.date "year" output.check
-  date.block
+  new.block
   format.btitle
   "title" output.check
-  new.sentence
+  new.block
   bbl.phdthesis format.thesis.type output.nonnull
   school "school" bibinfo.warn output
   address "address" bibinfo.check output
-  format.url output
-  new.sentence
+  format.date "year" output.check
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
@@ -1165,19 +1267,20 @@ FUNCTION {proceedings}
 { output.bibitem
   format.editors output
   editor format.key output
-  format.date "year" output.check
-  date.block
+  new.block
   format.btitle "title" output.check
   format.bvolume output
   format.number.series output
+  new.sentence
   publisher empty$
     { format.organization.address output }
     { organization "organization" bibinfo.check output
       format.publisher.address output
     }
   if$
-  format.url output
-  new.sentence
+  format.date "year" output.check
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
@@ -1186,16 +1289,16 @@ FUNCTION {techreport}
 { output.bibitem
   format.authors "author" output.check
   author format.key output
-  format.date "year" output.check
-  date.block
+  new.block
   format.title
   "title" output.check
-  new.sentence
+  new.block
   format.tr.number output.nonnull
   institution "institution" bibinfo.warn output
   address "address" bibinfo.check output
-  format.url output
-  new.sentence
+  format.date "year" output.check
+  format.doi output
+  new.block
   format.note output
   fin.entry
 }
@@ -1204,11 +1307,11 @@ FUNCTION {unpublished}
 { output.bibitem
   format.authors "author" output.check
   author format.key output
-  format.date "year" output.check
-  date.block
+  new.block
   format.title "title" output.check
-  format.url output
-  new.sentence
+  format.date "year" output.check
+  format.doi output
+  new.block
   format.note "note" output.check
   fin.entry
 }
@@ -1325,15 +1428,24 @@ FUNCTION {sort.format.names}
   numnames 'namesleft :=
     { namesleft #0 > }
     { s nameptr
-      "{vv{ } }{ll{ }}{  ff{ }}{  jj{ }}"
+      "{vv{ } }{ll{ }}{  f{ }}{  jj{ }}"
       format.name$ 't :=
       nameptr #1 >
         {
+          nameptr #6
+          #1 + =
+          numnames #6
+          > and
+            { "others" 't :=
+              #1 'namesleft := }
+            'skip$
+          if$
           "   "  *
           namesleft #1 = t "others" = and
-            { "zzzzz" * }
-            { t sortify * }
+            { "zzzzz" 't := }
+            'skip$
           if$
+          t sortify *
         }
         { t sortify * }
       if$
@@ -1393,22 +1505,21 @@ FUNCTION {editor.sort}
     { editor sort.format.names }
   if$
 }
+INTEGERS { seq.num }
+FUNCTION {init.seq}
+{ #0 'seq.num :=}
+EXECUTE {init.seq}
+FUNCTION {int.to.fix}
+{ "000000000" swap$ int.to.str$ *
+  #-1 #10 substring$
+}
 FUNCTION {presort}
 { calc.label
   label sortify
   "    "
   *
-  type$ "book" =
-  type$ "inbook" =
-  or
-    'author.editor.sort
-    { type$ "proceedings" =
-        'editor.sort
-        'author.sort
-      if$
-    }
-  if$
-  #1 entry.max$ substring$
+  seq.num #1 + 'seq.num :=
+  seq.num  int.to.fix
   'sort.label :=
   sort.label
   *
@@ -1424,17 +1535,30 @@ FUNCTION {presort}
 ITERATE {presort}
 SORT
 STRINGS { last.label next.extra }
-INTEGERS { last.extra.num number.label }
+INTEGERS { last.extra.num last.extra.num.extended last.extra.num.blank number.label }
 FUNCTION {initialize.extra.label.stuff}
 { #0 int.to.chr$ 'last.label :=
   "" 'next.extra :=
   #0 'last.extra.num :=
+  "a" chr.to.int$ #1 - 'last.extra.num.blank :=
+  last.extra.num.blank 'last.extra.num.extended :=
   #0 'number.label :=
 }
 FUNCTION {forward.pass}
 { last.label label =
     { last.extra.num #1 + 'last.extra.num :=
-      last.extra.num int.to.chr$ 'extra.label :=
+      last.extra.num "z" chr.to.int$ >
+       { "a" chr.to.int$ 'last.extra.num :=
+         last.extra.num.extended #1 + 'last.extra.num.extended :=
+       }
+       'skip$
+      if$
+      last.extra.num.extended last.extra.num.blank >
+        { last.extra.num.extended int.to.chr$
+          last.extra.num int.to.chr$
+          * 'extra.label := }
+        { last.extra.num int.to.chr$ 'extra.label := }
+      if$
     }
     { "a" chr.to.int$ 'last.extra.num :=
       "" 'extra.label :=
@@ -1483,25 +1607,21 @@ FUNCTION {begin.bib}
   if$
   "\begin{thebibliography}{" number.label int.to.str$ * "}" *
   write$ newline$
-  "\newcommand{\enquote}[1]{``#1''}"
+  "\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi"
   write$ newline$
-  "\providecommand{\natexlab}[1]{#1}"
+  "\expandafter\ifx\csname urlstyle\endcsname\relax"
   write$ newline$
-  "\providecommand{\url}[1]{\texttt{#1}}"
+  "  \expandafter\ifx\csname doi\endcsname\relax"
   write$ newline$
-  "\providecommand{\urlprefix}{URL }"
+  "  \def\doi#1{doi:\discretionary{}{}{}#1}\fi \else"
   write$ newline$
-  "\providecommand{\bibAnnoteFile}[1]{%"
+  "  \expandafter\ifx\csname doi\endcsname\relax"
   write$ newline$
-  "  \IfFileExists{#1}{\begin{quotation}\noindent\textsc{Key:} #1\\"
+  "  \def\doi{doi:\discretionary{}{}{}\begingroup \urlstyle{rm}\Url}\fi \fi"
   write$ newline$
-  "  \textsc{Annotation:}\ \input{#1}\end{quotation}}{}}"
+  "\expandafter\ifx\csname selectlanguage\endcsname\relax"
   write$ newline$
-  "\providecommand{\bibAnnote}[2]{%"
-  write$ newline$
-  "  \begin{quotation}\noindent\textsc{Key:} #1\\"
-  write$ newline$
-  "  \textsc{Annotation:}\ #2\end{quotation}}"
+  "  \def\selectlanguage#1{}\fi"
   write$ newline$
 }
 EXECUTE {begin.bib}
@@ -1514,4 +1634,4 @@ FUNCTION {end.bib}
 EXECUTE {end.bib}
 %% End of customized bst file
 %%
-%% End of file `te.bst'.
+%% End of file `Frontiers-Vancouver.bst'.
